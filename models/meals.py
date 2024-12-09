@@ -7,5 +7,5 @@ class Meals(db.Model):
     name = db.Column(db.String(80), nullable=False)
     description = db.Column(db.String(255), nullable=True)
     date_time = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
-    on_diet = db.Column(db.Boolean, nullable=False)
+    on_diet = db.Column(db.Boolean, nullable=False, default=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) 

@@ -85,8 +85,8 @@ def update_user(id_user):
 def delete_user(id_user):
   user = User.query.get(id_user)
 
-  if current_user.role == 'user': ##################################
-    return jsonify({"message": "Operação não permitida."}), 403 ##########
+  if current_user.role == 'user':
+    return jsonify({"message": "Operação não permitida."}), 403 
 
   if id_user == current_user.id:
     return jsonify({"message": "Deleção não permitida."}), 403
@@ -97,6 +97,24 @@ def delete_user(id_user):
     return jsonify({"message": f"Usuário {id_user} deletado com sucesso."})
   
   return jsonify({"message": "Usuário não encontrado."}), 404
+
+@app.route("/user/meals", methods=["POST"])
+@login_required
+def add_meal():
+  data = request.json
+  user_id = current_user.id
+  name = data.get("name")
+  description = data.get("description")
+  date_time = data.get("date_time")
+  on_diet = data.get("on_diet")
+
+  if name:
+    meal = Meals(name=name, description=description, date_time=date_time, on_diet=on_diet, user_id=user_id)
+    db.session.add(meal)
+    db.session.commit()
+    return jsonify({"message": "Refeição adicionada com sucesso!"})
+
+  return jsonify({"message": "Dados inválidos"}), 400
 
 if __name__ == "__main__":
   app.run(debug=True)
