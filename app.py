@@ -116,5 +116,38 @@ def add_meal():
 
   return jsonify({"message": "Dados inválidos"}), 400
 
+@app.route("/user/meals", methods=["GET"])
+@login_required
+def read_meals():
+  meals = Meals.query.filter_by(user_id=current_user.id)
+
+  if meals:
+    meals_data = [
+              {"id": meal.id, "name": meal.name, "description": meal.description, "date": meal.date_time, "on_diet": meal.on_diet}
+              for meal in meals
+          ]
+          
+    return jsonify({"meals": meals_data}), 200
+  
+  return jsonify({"message": "Nenhuma refeição encontrada."}), 404
+
+@app.route("/user/meal/<int:id_meal>", methods=["GET"])
+@login_required
+def read_meal(id_meal):
+  meal = Meals.query.filter_by(user_id=current_user.id, id=id_meal).first()
+
+  if meal:
+    meal_data = {
+        "id": meal.id,
+        "name": meal.name,
+        "description": meal.description,
+        "date": meal.date_time,
+        "on_diet": meal.on_diet
+      }
+
+    return jsonify({"meal": meal_data})
+  
+  return jsonify({"message": "Refeição não encontrada."}), 404
+
 if __name__ == "__main__":
   app.run(debug=True)
