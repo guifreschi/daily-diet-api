@@ -149,5 +149,47 @@ def read_meal(id_meal):
   
   return jsonify({"message": "Refeição não encontrada."}), 404
 
+@app.route("/user/meal/<int:id_meal>", methods=["PUT"])
+@login_required
+def update_meal(id_meal):
+  data = request.json
+  meal = Meals.query.filter_by(user_id=current_user.id, id=id_meal).first()
+  name = data.get("name")
+  description = data.get("description")
+  date = data.get("date_time")
+  on_diet = data.get("on_diet")
+
+  if meal and (name or description or date or on_diet is not None):
+    if name is None:
+      name = meal.name
+    if description is None:
+      description = meal.description
+    if date is None:
+      date = meal.date_time
+    if on_diet is None:
+      on_diet = meal.on_diet
+    
+    meal.name = name
+    meal.description = description
+    meal.date_time = date
+    meal.on_diet = on_diet
+
+    db.session.commit()
+    return jsonify({"message": f"A refeição {meal.id} foi atualizada com sucesso."})
+
+  return jsonify({"message": "Refeição não encontrada."}), 404
+
+@app.route("/user/meal/<int:id_meal>", methods=["DELETE"])
+@login_required
+def delete_meal(id_meal):
+  meal = Meals.query.filter_by(user_id=current_user.id, id=id_meal).first()
+
+  if meal:
+    db.session.delete(meal)
+    db.session.commit()
+    return jsonify({"message": f"Refeição {id_meal} deletada com sucesso."})
+  
+  return jsonify({"message": "Refeição não encontrada."}), 404
+
 if __name__ == "__main__":
   app.run(debug=True)
